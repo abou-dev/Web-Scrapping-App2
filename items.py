@@ -6,10 +6,10 @@
 import scrapy
 
 
-class ComparateurPrixItem(scrapy.Item):
+class ProduitItem(scrapy.Item):
     # define the fields for your item here like:
-     designation = scrapy.Field()
-     image = scrapy.Field()
-     prix = scrapy.Field()
-#     pourcent = scrapy.Field()
-   
+    designation = scrapy.Field()
+    image = scrapy.Field()
+    prix = scrapy.Field()
+    site = scrapy.Field()
+
