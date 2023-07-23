@@ -57,7 +57,7 @@ class JumiaSpider(Spider):
         # Connexion à MongoDB
         client = MongoClient('mongodb://localhost:27017/')
         db = client['resultat_db']
-        collection = db['jumia']
+        collection = db['resultat']
 
         # Insérer les données dans la collection MongoDB
         collection.insert_many(data)
