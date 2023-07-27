@@ -40,7 +40,7 @@ class DakarMarketSpider(Spider):
 
     def closed(self, reason):
         # Enregistrement des données dans un fichier JSON à la fermeture de l'araignée
-        data = [dict(item) for item in self.items]
+        data = [dict(item) for item in self.items if item['designation'] is not None]
 
         #with open('dakarmarket.json', 'w') as json_file:
         #    json.dump(data, json_file, indent=4)
@@ -48,7 +48,7 @@ class DakarMarketSpider(Spider):
         # Connexion à MongoDB
         client = MongoClient('mongodb://localhost:27017/')
         db = client['resultat_db']
-        collection = db['resultat']
+        collection = db['SiteScrappingApp_resultat']
 
         # Insérer les données dans la collection MongoDB
         collection.insert_many(data)

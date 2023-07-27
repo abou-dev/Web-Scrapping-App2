@@ -13,7 +13,6 @@ class JumiaSpider(Spider):
     site_name = 'Jumia'
     items = []
 
-
     def start_requests(self):
         for url in self.start_urls:
             yield Request(url=url, callback=self.parse)
@@ -49,15 +48,15 @@ class JumiaSpider(Spider):
 
     def closed(self, reason):
         # Enregistrement des données dans un fichier JSON à la fermeture de l'araignée
-        data = [dict(item) for item in self.items]
+        data = [dict(item) for item in self.items if item['designation'] is not None]
 
         #with open('jumia.json', 'w') as json_file:
-        #    json.dump(data, json_file, indent=4)
+        #   json.dump(data, json_file, indent=4)
 
         # Connexion à MongoDB
         client = MongoClient('mongodb://localhost:27017/')
         db = client['resultat_db']
-        collection = db['resultat']
+        collection = db['SiteScrappingApp_resultat']
 
         # Insérer les données dans la collection MongoDB
         collection.insert_many(data)
