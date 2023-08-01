@@ -1,5 +1,3 @@
-import json
-
 from pymongo import MongoClient
 from scrapy import Request, Spider
 
@@ -39,12 +37,19 @@ class DakarMarketSpider(Spider):
             yield Request(url=next_page_url, callback=self.parse)
 
     def closed(self, reason):
+        unique_data = []
+        unique_designations = set()
+
+        for resultat in self.items:
+            if resultat['designation'] not in unique_designations:
+                unique_data.append(resultat)
+                unique_designations.add(resultat['designation'])
+
         # Enregistrement des données dans un fichier JSON à la fermeture de l'araignée
+        data = [dict(item) for item in unique_data if item['designation'] is not None]
+
+        # Enregistrement des données dans un fichier JSON à la fermeture spider
         data = [dict(item) for item in self.items if item['designation'] is not None]
-
-        #with open('dakarmarket.json', 'w') as json_file:
-        #    json.dump(data, json_file, indent=4)
-
         # Connexion à MongoDB
         client = MongoClient('mongodb://localhost:27017/')
         db = client['resultat_db']

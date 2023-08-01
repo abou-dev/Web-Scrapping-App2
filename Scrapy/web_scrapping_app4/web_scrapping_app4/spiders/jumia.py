@@ -1,11 +1,8 @@
-
-import json
 import unicodedata
 from pymongo import MongoClient
 from scrapy import Request, Spider
 
 from web_scrapping_app4.items import ProduitItem
-
 
 class JumiaSpider(Spider):
     name = "jumia"
@@ -16,7 +13,6 @@ class JumiaSpider(Spider):
     def start_requests(self):
         for url in self.start_urls:
             yield Request(url=url, callback=self.parse)
-
 
     def parse(self, response):
         listArticles = response.css('article.prd')
@@ -29,29 +25,30 @@ class JumiaSpider(Spider):
             prix = article.css('a.core div.prc::text').extract_first()
             prix = prix.replace(' ', '').strip() if prix else None
 
-
             item = ProduitItem()
             item['designation'] = designation
             item['image'] = image
             item['prix'] = prix
             item['site'] = self.site_name
 
-
             self.items.append(item)
-
 
         # Récupérer les données des pages 2 à 25
         for page in range(2, 25):
             next_page_url = f'https://www.jumia.sn/telephone-tablette/?page={page}#catalog-listing'
             yield Request(url=next_page_url, callback=self.parse)
 
-
     def closed(self, reason):
-        # Enregistrement des données dans un fichier JSON à la fermeture de l'araignée
-        data = [dict(item) for item in self.items if item['designation'] is not None]
+        unique_data = []
+        unique_designations = set()
 
-        #with open('jumia.json', 'w') as json_file:
-        #   json.dump(data, json_file, indent=4)
+        for resultat in self.items:
+            if resultat['designation'] not in unique_designations:
+                unique_data.append(resultat)
+                unique_designations.add(resultat['designation'])
+
+        # Enregistrement des données dans un fichier JSON à la fermeture de l'araignée
+        data = [dict(item) for item in unique_data if item['designation'] is not None]
 
         # Connexion à MongoDB
         client = MongoClient('mongodb://localhost:27017/')
